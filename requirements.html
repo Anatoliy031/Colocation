@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+  /* FAB: плавающие круглые кнопки, используются для возврата и прокрутки */
+  .fab {
+    position: fixed;
+    right: max(14px, env(safe-area-inset-right));
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent-color, #00acc1), var(--secondary-color, #3949ab));
+    color: #fff; text-decoration: none;
+    box-shadow: 0 10px 25px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.08) inset;
+    z-index: 10000;
+    transition: transform .2s ease, opacity .2s ease, box-shadow .2s ease, filter .2s ease;
+    backdrop-filter: saturate(1.2);
+  }
+  .fab:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.05); }
+  .fab:active { transform: translateY(0) scale(.98); }
+  .fab svg { width: 26px; height: 26px; pointer-events: none; }
+  #fab-back { bottom: calc(96px + env(safe-area-inset-bottom)); }
+  #fab-top  { bottom: calc(24px + env(safe-area-inset-bottom)); }
+  #fab-top { opacity: 0; pointer-events: none; transform: translateY(8px) scale(.9); }
+  #fab-top.show { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+  .fab::after{ content:""; position:absolute; inset:0; border-radius:50%;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  @media (prefers-reduced-motion: reduce) { .fab, #fab-top { transition: none; } }
+</style>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Требования к помещениям | Колокейшн на подстанциях</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1a237e;
+      --secondary-color: #3949ab;
+      --accent-color: #00acc1;
+      --text-light: #ffffff;
+      --text-dark: #212121;
+      --bg-dark: #0d1117;
+      --bg-card: #161b22;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #0a0e27;
+      color: var(--text-light);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Фон с легким узором */
+    .bg-pattern {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      background: linear-gradient(to bottom, #0a0e27 0%, #1a237e 100%);
+      overflow: hidden;
+    }
+    .bg-pattern::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(circle at 1px 1px, rgba(0, 172, 193, 0.15) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Хедер */
+    header {
+      background: rgba(26, 35, 126, 0.1);
+      backdrop-filter: blur(20px);
+      padding: 50px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 0%, #00acc1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    /* Контейнер для секций */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    /* Секции */
+    .section {
+      background: rgba(22, 27, 34, 0.6);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+    .section:hover {
+      border-color: rgba(0, 172, 193, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 172, 193, 0.1);
+    }
+    .section h2 {
+      color: #00acc1;
+      margin-bottom: 20px;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section h2::before {
+      content: '';
+      width: 4px;
+      height: 28px;
+      background: linear-gradient(to bottom, #00acc1, #3949ab);
+      border-radius: 2px;
+    }
+    /* Список требований */
+    .section ul {
+      list-style: none;
+      padding-left: 0;
+      margin-left: 0;
+      display: grid;
+      gap: 10px;
+    }
+    .section li {
+      position: relative;
+      padding-left: 25px;
+      line-height: 1.6;
+    }
+    .section li::before {
+      content: '\2022'; /* круглые маркеры */
+      color: #00acc1;
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    /* Список сокращений */
+    .abbrev-list {
+      display: grid;
+      gap: 12px;
+    }
+    .abbrev-item {
+      background: rgba(13, 17, 23, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    .abbrev-item:hover {
+      background: rgba(13, 17, 23, 0.6);
+      transform: translateX(5px);
+      border-color: rgba(0, 172, 193, 0.2);
+    }
+    .abbrev-item dt {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #00acc1;
+      margin-bottom: 5px;
+    }
+    .abbrev-item dd {
+      opacity: 0.9;
+      margin-left: 0;
+    }
+    /* Кнопка возврата */
+    .back-button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #00acc1, #3949ab);
+      color: #ffffff;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .back-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 172, 193, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-pattern"></div>
+  <header>
+    <h1>Требования к помещениям</h1>
+    <p>Основные технические параметры для организации услуги колокейшн</p>
+  </header>
+  <div class="container">
+    <!-- Размещение и архитектура -->
+    <section class="section fade-in">
+      <h2>Размещение и архитектура</h2>
+      <ul>
+        <li>Помещение без окон и сквозных транзитов; в капитальном здании с защитой от внешних воздействий.</li>
+        <li>Высота потолка не менее 2,8&nbsp;м; дверные проёмы шириной ≥ 0,9&nbsp;м и высотой ≥ 2,1&nbsp;м; коридоры шириной ≥ 1,2&nbsp;м.</li>
+        <li>Пол ровный, антистатический, непылящий, рассчитан на нагрузку не менее 12 кН/м².</li>
+        <li>Щели и вводы герметизированы; целевой класс чистоты воздуха — ISO 14644‑1 Class 8.</li>
+      </ul>
+    </section>
+
+    <!-- Электроснабжение и заземление -->
+    <section class="section fade-in">
+      <h2>Электроснабжение и заземление</h2>
+      <ul>
+        <li>Два независимых ввода электропитания (А/В) с автоматическим вводом резерва; резервирование N+1 для UPS и систем охлаждения.</li>
+        <li>Наличие линий переменного (230/400&nbsp;В) и постоянного (‑48&nbsp;В) тока, раздельные шины в каждой стойке.</li>
+        <li>ИБП онлайн‑типа с избыточностью N+1 и временем автономии не менее 10–15 минут; дизель‑генератор с запасом топлива ≥ 24&nbsp;часа.</li>
+        <li>Общая шина заземления TMGB/TGB; все стойки, лотки и металлоконструкции подключены к системе уравнивания потенциалов.</li>
+      </ul>
+    </section>
+
+    <!-- Охлаждение и микроклимат -->
+    <section class="section fade-in">
+      <h2>Охлаждение и микроклимат</h2>
+      <ul>
+        <li>Организация холодных/горячих коридоров, предпочтительно в виде контеймента; расчёт тепловых нагрузок (3–10 кВт на стойку и выше).</li>
+        <li>Резервирование N+1 для охладителей, вентиляторов и насосов.</li>
+        <li>Поддержание температуры 18–27&nbsp;°C и относительной влажности 20–80&nbsp;%; контроль точки росы и распределения температуры.</li>
+        <li>Размещение датчиков температуры, влажности и перепада давления по залу и в стойках для мониторинга в реальном времени.</li>
+      </ul>
+    </section>
+
+    <!-- Пожарная безопасность -->
+    <section class="section fade-in">
+      <h2>Пожарная безопасность</h2>
+      <ul>
+        <li>Адресная система раннего обнаружения пожара; использование высокочувствительных дымовых датчиков (VESDA).</li>
+        <li>Системы автоматического газового тушения (FK‑5‑1‑12, HFC‑227ea и др.); при необходимости — водяные спринклеры или микрозавесы.</li>
+        <li>Огнестойкие двери класса EI‑60; герметизация всех кабельных и трубных проходов огнестойкими материалами.</li>
+        <li>Запрет хранения горючих материалов и стороннего оборудования в серверном помещении.</li>
+      </ul>
+    </section>
+
+    <!-- Физическая безопасность и доступ -->
+    <section class="section fade-in">
+      <h2>Физическая безопасность и доступ</h2>
+      <ul>
+        <li>Система контроля доступа с двухфакторной аутентификацией (карта + PIN/биометрия); разграничение зон доступа.</li>
+        <li>Круглосуточное видеонаблюдение всех входов и рядов; хранение архивов не менее 30 суток.</li>
+        <li>Регистрация и сопровождение посетителей, ведение журналов посещений и работ.</li>
+      </ul>
+    </section>
+
+    <!-- Кабельная инфраструктура и кроссы -->
+    <section class="section fade-in">
+      <h2>Кабельная инфраструктура и кроссы</h2>
+      <ul>
+        <li>Раздельные лотки для силовых и слаботочных линий; два независимых оптоволоконных ввода с разных направлений.</li>
+        <li>Кроссовые стойки MMR/ODF с запасом кабеля и радиусом изгиба; маркировка кабелей по стандарту TIA‑606‑C.</li>
+        <li>Медные линии категории не ниже Cat.6A; оптические линии в соответствии с TIA‑568.</li>
+      </ul>
+    </section>
+
+    <!-- Стойки и размещение оборудования -->
+    <section class="section fade-in">
+      <h2>Стойки и размещение оборудования</h2>
+      <ul>
+        <li>Стойки 19″ высотой 42–52 U, глубиной 1000–1200 мм; перфорированные двери, замки и возможность заземления.</li>
+        <li>Грузоподъёмность стоек — не менее 1000 кг; крепление к полу и анкерование по паспорту.</li>
+        <li>Две вертикальные PDU (питание А/В) с мониторингом потребления и защитой от перегрузок в каждой стойке.</li>
+      </ul>
+    </section>
+
+    <!-- Молниезащита и ЭМС -->
+    <section class="section fade-in">
+      <h2>Молниезащита и ЭМС</h2>
+      <ul>
+        <li>Внешняя система молниезащиты и уравнивание потенциалов; экранирование вводов и непрерывность контура PE.</li>
+        <li>Разделение трасс силовых и телекоммуникационных кабелей; соблюдение правил электромагнитной совместимости.</li>
+      </ul>
+    </section>
+
+    <!-- Эксплуатация и мониторинг -->
+    <section class="section fade-in">
+      <h2>Эксплуатация и мониторинг</h2>
+      <ul>
+        <li>Круглосуточный диспетчерский центр; мониторинг энергопотребления, микроклимата и аварийных сигналов.</li>
+        <li>Регламенты проведения работ (SOP, MOP, EOP); возможность «Remote Hands» по заявкам.</li>
+        <li>Ежемесячные отчёты об SLA, зарегистрированных инцидентах и потреблении ресурсов.</li>
+      </ul>
+    </section>
+
+    <!-- Приёмка помещения -->
+    <section class="section fade-in">
+      <h2>Приёмка помещения</h2>
+      <ul>
+        <li>Предоставление исполнительных схем и планов: однолинейные схемы питания, сетка зала, схемы заземления и кросс‑листов.</li>
+        <li>Протоколы измерений: сопротивление заземления, изоляции, петли фаза‑ноль, термометрия, уровни шума и освещённости.</li>
+        <li>Акты по пожарной безопасности, проверке СКУД и видеонаблюдения, герметизации проходок.</li>
+      </ul>
+    </section>
+
+    <!-- Сокращения и аббревиатуры -->
+    <section class="section fade-in">
+      <h2>Основные сокращения</h2>
+      <dl class="abbrev-list">
+        <div class="abbrev-item"><dt>MMR</dt><dd>Meet‑me room — коммутационный зал для подключения провайдеров</dd></div>
+        <div class="abbrev-item"><dt>ODF</dt><dd>Optical Distribution Frame — оптический кросс</dd></div>
+        <div class="abbrev-item"><dt>UPS</dt><dd>Uninterruptible Power Supply — источник бесперебойного питания</dd></div>
+        <div class="abbrev-item"><dt>PDU</dt><dd>Power Distribution Unit — распределитель питания в стойке</dd></div>
+        <div class="abbrev-item"><dt>TIA</dt><dd>Telecommunications Industry Association — организация, разрабатывающая стандарты для телекоммуникаций</dd></div>
+        <div class="abbrev-item"><dt>ETSI</dt><dd>European Telecommunications Standards Institute — европейский институт телеком‑стандартов</dd></div>
+        <div class="abbrev-item"><dt>ASHRAE</dt><dd>American Society of Heating, Refrigerating and Air‑Conditioning Engineers — международная организация, определяющая требования к микроклимату</dd></div>
+        <div class="abbrev-item"><dt>NFPA</dt><dd>National Fire Protection Association — национальная ассоциация противопожарной защиты</dd></div>
+        <div class="abbrev-item"><dt>ISO</dt><dd>International Organization for Standardization — международная организация по стандартизации</dd></div>
+        <div class="abbrev-item"><dt>EMC</dt><dd>Electromagnetic Compatibility — электромагнитная совместимость</dd></div>
+        <div class="abbrev-item"><dt>DC / AC</dt><dd>Direct Current / Alternating Current — постоянный и переменный ток</dd></div>
+        <div class="abbrev-item"><dt>N+1</dt><dd>Схема резервирования, предусматривающая один резервный компонент на n рабочих</dd></div>
+        <div class="abbrev-item"><dt>TGB / EBB</dt><dd>Telecommunications Grounding Bus / Equipment Bonding Bus — шины заземления и уравнивания потенциалов</dd></div>
+      </dl>
+    </section>
+
+    <a href="index.html" class="back-button">Вернуться на главную</a>
+  </div>
+
+  <!-- Кнопка НАЗАД для мобильного интерфейса -->
+  <a id="fab-back" class="fab" href="index.html" aria-label="Назад в главное меню" title="Назад">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>
+  <!-- Кнопка ВВЕРХ -->
+  <button id="fab-top" class="fab" type="button" aria-label="В начало страницы" title="Вверх">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 15l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <script>
+    // Плавное появление кнопки "Вверх"
+    (function(){
+      var topBtn = document.getElementById('fab-top');
+      if (!topBtn) return;
+      var onScroll = function(){
+        if (window.scrollY > 300) { topBtn.classList.add('show'); }
+        else { topBtn.classList.remove('show'); }
+      };
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+      topBtn.addEventListener('click', function(){
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, {passive:true});
+    })();
+  </script>
+  <script>
+    // Назад в главное меню: сохраняем флаг восстановления скролла
+    (function(){
+      var back = document.getElementById('fab-back');
+      if(!back) return;
+      back.addEventListener('click', function(e){
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
+        e.preventDefault();
+        try { sessionStorage.setItem('restoreFlag', '1'); } catch(_) {}
+        var href = back.getAttribute('href') || 'index.html';
+        window.location.href = href;
+      }, {passive:false});
+    })();
+  </script>
+</body>
+</html>
+</body>
+</html>
