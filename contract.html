@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+  /* FAB: плавающие круглые кнопки, используются для возврата и прокрутки */
+  .fab {
+    position: fixed;
+    right: max(14px, env(safe-area-inset-right));
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent-color, #00acc1), var(--secondary-color, #3949ab));
+    color: #fff; text-decoration: none;
+    box-shadow: 0 10px 25px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.08) inset;
+    z-index: 10000;
+    transition: transform .2s ease, opacity .2s ease, box-shadow .2s ease, filter .2s ease;
+    backdrop-filter: saturate(1.2);
+  }
+  .fab:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.05); }
+  .fab:active { transform: translateY(0) scale(.98); }
+  .fab svg { width: 26px; height: 26px; pointer-events: none; }
+  #fab-back { bottom: calc(96px + env(safe-area-inset-bottom)); }
+  #fab-top  { bottom: calc(24px + env(safe-area-inset-bottom)); }
+  #fab-top { opacity: 0; pointer-events: none; transform: translateY(8px) scale(.9); }
+  #fab-top.show { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+  .fab::after{ content:""; position:absolute; inset:0; border-radius:50%;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  @media (prefers-reduced-motion: reduce) { .fab, #fab-top { transition: none; } }
+</style>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Правовая конструкция | Колокейшн на подстанциях</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #1a237e;
+      --secondary-color: #3949ab;
+      --accent-color: #00acc1;
+      --text-light: #ffffff;
+      --text-dark: #212121;
+      --bg-dark: #0d1117;
+      --bg-card: #161b22;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #0a0e27;
+      color: var(--text-light);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Фон с легким узором */
+    .bg-pattern {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      background: linear-gradient(to bottom, #0a0e27 0%, #1a237e 100%);
+      overflow: hidden;
+    }
+    .bg-pattern::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(circle at 1px 1px, rgba(0, 172, 193, 0.15) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Хедер */
+    header {
+      background: rgba(26, 35, 126, 0.1);
+      backdrop-filter: blur(20px);
+      padding: 60px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 0%, #00acc1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      max-width: 700px;
+      margin: 0 auto;
+      opacity: 0.85;
+    }
+
+    /* Контейнер */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    /* Секции */
+    .section {
+      background: rgba(22, 27, 34, 0.6);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+    .section:hover {
+      border-color: rgba(0, 172, 193, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 172, 193, 0.1);
+    }
+    .section h2 {
+      color: #00acc1;
+      margin-bottom: 20px;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section h2::before {
+      content: '';
+      width: 4px;
+      height: 28px;
+      background: linear-gradient(to bottom, #00acc1, #3949ab);
+      border-radius: 2px;
+    }
+    .section p {
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+    .section ul {
+      list-style: none;
+      padding-left: 0;
+      margin-left: 0;
+    }
+    .section li {
+      position: relative;
+      padding-left: 25px;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .section li::before {
+      content: '\2022'; /* круглые маркеры */
+      color: #00acc1;
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    /* Сноски */
+    .footnotes {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+    .footnotes ol {
+      padding-left: 20px;
+    }
+    .footnotes li {
+      margin-bottom: 8px;
+    }
+    .footnotes a {
+      color: #00acc1;
+      text-decoration: none;
+    }
+    .footnotes a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="bg-pattern"></div>
+  <header>
+    <h1>Правовая конструкция услуги колокейшн</h1>
+    <p>Краткий обзор законодательных оснований, вариантов электроснабжения и рекомендации по оформлению договора</p>
+  </header>
+  <main class="container">
+    <section class="section">
+      <h2>Правовое основание и договор аренды</h2>
+      <p>
+        В основе оказания услуги колокейшн лежит договор аренды на размещение телекоммуникационного оборудования. Такой договор
+        обеспечивает арендатора правом владения и пользования местом на подстанции и является достаточным
+        правовым основанием для подачи заявки на технологическое присоединение энергопринимающих устройств по Правилам
+        технологического присоединения. Сетевая организация обязана заключить договор технологического присоединения с
+        лицами, чьи устройства находятся на праве собственности или ином законном основании, и не вправе отказывать в
+        заключении договора; в случае отказа заявитель может обратиться в суд<sup id="fn1-ref"><a href="#fn1">[1]</a></sup>.
+      </p>
+    </section>
+    <section class="section">
+      <h2>Варианты организации электроснабжения</h2>
+      <p>
+        Для питания оборудования оператора связи можно выбрать один из трёх вариантов, каждый из которых опирается на действующее законодательство.
+      </p>
+      <ul>
+        <li><strong>Прямой договор энергоснабжения с гарантирующим поставщиком.</strong> Оператор заключает договор
+          энергоснабжения на отдельную точку поставки. Гарантирующий поставщик продаёт электрическую энергию и одновременно
+          оказывает услуги по её передаче, взимая плату за поставленную энергию и сетевые услуги в составе единого
+          платежа<sup id="fn2-ref"><a href="#fn2">[2]</a></sup>.</li>
+        <li><strong>Компенсация фактических затрат арендодателя.</strong> Если заключение прямого договора невозможно, арендатор
+          компенсирует фактические расходы арендодателя на электроэнергию по показаниям отдельного счётчика без наценки.
+          Такая модель не является перепродажей электроэнергии: арендодатель лишь перевыставляет затраты, подтверждая
+          объём потребления и стоимость энергии по тарифам гарантирующего поставщика.</li>
+        <li><strong>Питание как субабонент.</strong> Абонент (арендодатель) может передать энергию, принятую от энергоснабжающей
+          организации, другому лицу (субабоненту) через свою сеть только при наличии письменного согласия энергоснабжающей
+          организации<sup id="fn5-ref"><a href="#fn5">[5]</a></sup>. Такой вариант применяется, когда прямое
+          подключение технически невозможно; договор между абонентом и субабонентом не устраняет обязанности перед
+          энергоснабжающей организацией.</li>
+      </ul>
+    </section>
+    <section class="section">
+      <h2>Коммерческий учёт электроэнергии</h2>
+      <p>
+        Коммерческий учёт электроэнергии организуют гарантирующие поставщики и сетевые организации. Они обеспечивают закупку,
+        установку, замену и эксплуатацию приборов учёта и сопутствующего оборудования, включая интеллектуальные системы
+        учёта<sup id="fn3-ref"><a href="#fn3">[3]</a></sup>. Узел учёта должен быть установлен на отходящем вводе
+        потребителя, обеспечивать дистанционный съём показаний и соответствовать схемам разграничения балансовой
+        принадлежности. Сетевая организация отвечает за коммерческий учёт для энергопринимающих устройств, присоединённых
+        к её сети, и обеспечивает передачу данных между участниками рынка<sup id="fn4-ref"><a href="#fn4">[4]</a></sup>.
+      </p>
+    </section>
+    <section class="section">
+      <h2>Принципы и требования</h2>
+      <ul>
+        <li><strong>Недискриминационный доступ.</strong> Сетевая организация обязана предоставить услугу на равных условиях;
+          невозможно взимать двойную плату за передачу электроэнергии: плата за передачу включается в счёт
+          гарантирующего поставщика<sup id="fn2-ref"><a href="#fn2">[2]</a></sup>.</li>
+        <li><strong>Качество и надёжность.</strong> Параметры качества напряжения должны соответствовать действующим
+          стандартам и техническим условиям; для критичных объектов рекомендуется резервное питание.</li>
+        <li><strong>Прозрачность расчётов.</strong> Объём потребления рассчитывается по показаниям отдельного узла учёта,
+          а расчётная величина не содержит наценки при модели компенсации.</li>
+      </ul>
+    </section>
+    <section class="section">
+      <h2>Рекомендации по оформлению договора</h2>
+      <p>
+        При заключении договора аренды и организации электроснабжения рекомендуем:
+      </p>
+      <ul>
+        <li>Включить в договор условия о технических параметрах: выделенной мощности, категории надёжности и точке
+          подключения.</li>
+        <li>Определить выбранный вариант электроснабжения (прямой договор, компенсация или субабонент) и порядок
+          взаимодействия с гарантирующим поставщиком.</li>
+        <li>Зафиксировать распределение ответственности за эксплуатацию и обслуживание приборов учёта, а также порядок
+          доступа персонала к оборудованию.</li>
+        <li>Установить порядок расчётов: тариф, периодичность оплаты, документы (акт потребления или акт компенсации),
+          а также санкции за нарушение сроков платежей.</li>
+      </ul>
+    </section>
+    <section class="footnotes">
+      <ol>
+        <li id="fn1">Сетевая организация обязана заключить договор технологического присоединения с лицами, имеющими
+          энергопринимающие устройства на праве собственности или ином законном основании; отказ недопустим【503413335332792†L363-L369】【503413335332792†L409-L416】.
+          <a href="#fn1-ref">↩</a></li>
+        <li id="fn2">Под договором энергоснабжения гарантирующий поставщик продаёт электрическую энергию и оказывает
+          услуги по её передаче; потребитель оплачивает и энергию, и услуги по передаче, единовременно【853729784053065†L71-L77】.
+          <a href="#fn2-ref">↩</a></li>
+        <li id="fn3">Гарантирующие поставщики и сетевые организации обеспечивают закупку, установку, замену и
+          эксплуатацию приборов учёта и необходимых устройств для коммерческого учёта, включая интеллектуальные
+          системы【45511449797238†L43-L49】. <a href="#fn3-ref">↩</a></li>
+        <li id="fn4">Сетевые организации обеспечивают коммерческий учёт электроэнергии для устройств, присоединённых
+          к их сетям, и отвечают за функционирование систем учёта на границах балансовой принадлежности【45511449797238†L85-L90】.
+          <a href="#fn4-ref">↩</a></li>
+        <li id="fn5">Абонент может передавать энергию, принятую от энергоснабжающей организации, другому лицу (субабоненту)
+          только с согласия энергоснабжающей организации【59158563777794†L26-L29】【59158563777794†L36-L41】. <a href="#fn5-ref">↩</a></li>
+      </ol>
+    </section>
+  </main>
+  <!-- Кнопка назад -->
+  <a id="fab-back" class="fab" href="index.html" aria-label="Назад в главное меню" title="Назад">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>
+  <!-- Кнопка вверх -->
+  <button id="fab-top" class="fab" type="button" aria-label="В начало страницы" title="Вверх">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 15l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  <script>
+    (function(){
+      var topBtn = document.getElementById('fab-top');
+      if (!topBtn) return;
+      var onScroll = function(){
+        if (window.scrollY > 300) { topBtn.classList.add('show'); }
+        else { topBtn.classList.remove('show'); }
+      };
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+      topBtn.addEventListener('click', function(){
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, {passive:true});
+    })();
+  </script>
+  <script>
+    // SUBPAGE: «Назад» — возвращаемся на index и просим его восстановить прокрутку
+    (function(){
+      var back = document.getElementById('fab-back');
+      if(!back) return;
+      back.addEventListener('click', function(e){
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
+        e.preventDefault();
+        try { sessionStorage.setItem('restoreFlag', '1'); } catch(_) {}
+        var href = back.getAttribute('href') || 'index.html';
+        window.location.href = href;
+      }, {passive:false});
+    })();
+  </script>
+</body>
+</html>
